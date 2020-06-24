@@ -9,13 +9,15 @@
               <h3 class="text-center mb-0 text-secondary">LJ-ADMIN</h3>
             </div>
             <div class="card-body">
-              <el-form ref="form" :model="form">
-                <el-form-item>
+              <el-form ref="form" :model="form" :rules="rules">
+                <el-form-item prop="username">
                   <el-input v-model="form.username" size="medium" placeholder="请输入用户名"></el-input>
+                </el-form-item>
+                <el-form-item prop="password">
                   <el-input v-model="form.password" size="medium" placeholder="请输入密码" type="password"></el-input>
                 </el-form-item>
                 <el-form-item>
-                  <el-button type="primary" class="w-100">立即创建</el-button>
+                  <el-button type="primary" class="w-100" @click="submitForm">立即创建</el-button>
                 </el-form-item>
               </el-form>
             </div>
@@ -33,7 +35,23 @@
         form:{
           username:'',
           password:''
+        },
+        rules:{
+          username:[
+            { required: true, message: '请输入用户名', trigger: 'blur' }
+          ],
+           password:[
+            { required: true, message: '请输入密码', trigger: 'blur' }
+          ]
         }
+      }
+    },
+    methods:{
+      submitForm(){
+        this.$refs['form'].validate((valid) => {
+         if(!valid)return;
+         this.$router.push({name:'index'});
+        });
       }
     }
   }
