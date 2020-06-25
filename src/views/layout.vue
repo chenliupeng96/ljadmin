@@ -8,7 +8,7 @@
         style="background-color:#545c64;"
       >
         <!-- logo -->
-        <a class="h5 text-light mb-0 mr-auto">LJ-ADMIN</a>
+        <a class="h5 text-light mb-0 mr-auto">{{$conf.logo}}</a>
         <el-menu
           :default-active="navBar.active"
           mode="horizontal"
@@ -61,38 +61,11 @@ export default {
   mixins:[common],
   data() {
     return {
-      navBar:{
-        active:'0',
-        list:[
-          {
-            name: '首页',
-            subActive:'0',
-            submenu:[
-              {
-                icon:'el-icon-s-home',
-                name:'后台首页'
-              },
-               {
-                icon:'el-icon-s-claim',
-                name:'商品列表'
-              }
-            ]
-          },
-           {
-            name: '商品'
-          },
-           {
-            name: '订单'
-          },
-           {
-            name: '会员'
-          },
-          {
-            name: '设置'
-          }
-        ]
-      }
+      navBar:[]
     };
+  },
+  created(){
+    this.navBar = this.$conf.navBar;
   },
   computed:{
     slideMenusActive:{
