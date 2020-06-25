@@ -8,7 +8,7 @@
         style="background-color:#545c64;"
       >
         <!-- logo -->
-        <a class="h5 text-light mb-0 mr-auto">{{$conf.logo}}</a>
+        <a class="h5 text-light mb-0 mr-auto">{{ $conf.logo }}</a>
         <el-menu
           :default-active="navBar.active"
           mode="horizontal"
@@ -17,7 +17,12 @@
           text-color="#fff"
           active-text-color="#ffd04b"
         >
-          <el-menu-item :index="index|numToString" v-for="(item, index) in navBar.list" :key="index">{{item.name}}</el-menu-item>
+          <el-menu-item
+            :index="index | numToString"
+            v-for="(item, index) in navBar.list"
+            :key="index"
+            >{{ item.name }}</el-menu-item
+          >
           <el-submenu index="100">
             <template slot="title">
               <el-avatar
@@ -31,22 +36,31 @@
           </el-submenu>
         </el-menu>
       </el-header>
-      <el-container style="height:100%;padding-bottom:60px;">
+      <el-container style="height:100%;">
         <!-- 侧边布局 -->
         <el-aside width="200px">
-          <el-menu
-            default-active="2"
-            @select="slideSelect"
+          <el-menu default-active="2" @select="slideSelect" style="height:100%;">
+            <el-menu-item
+              :index="index | numToString"
+              v-for="(item, index) in slideMenus"
+              :key="index"
             >
-            <el-menu-item :index="index | numToString" v-for="(item,index) in slideMenus" :key="index">
               <i :class="item.icon"></i>
-              <span slot="title">{{item.name}}</span>
+              <span slot="title">{{ item.name }}</span>
             </el-menu-item>
           </el-menu>
         </el-aside>
         <!-- 主布局 -->
         <el-main>
-          <li v-for="i in 100" :key="i">{{ i }}</li>
+          <!-- 面包屑导航 -->
+          <div class="border-bottom" style="padding:20px;margin:-20px;">
+            <el-breadcrumb separator-class="el-icon-arrow-right">
+            <el-breadcrumb-item 
+            v-for="(item,index) in bran"
+            :key="index"
+            :to="{ path: item.path }">{{item.title}}</el-breadcrumb-item>
+          </el-breadcrumb>
+          </div>
         </el-main>
       </el-container>
     </el-container>
@@ -56,38 +70,63 @@
 </template>
 
 <script>
-import common from '@/common/mixins/common.js';
+import common from "@/common/mixins/common.js";
 export default {
-  mixins:[common],
+  mixins: [common],
   data() {
     return {
-      navBar:[]
+      navBar: [],
+      bran:[]
     };
   },
-  created(){
+  created() {
     this.navBar = this.$conf.navBar;
+    this.getRouterBran();
   },
-  computed:{
-    slideMenusActive:{
-      get(){
-        return this.navBar.list[this.navBar.active].subActive || '0';
+  computed: {
+    slideMenusActive: {
+      get() {
+        return this.navBar.list[this.navBar.active].subActive || "0";
       },
-      set(val){
+      set(val) {
         this.navBar.list[this.navBar.active].subActive = val;
         console.log(val);
-      }
+      },
     },
-    slideMenus(){
-      return this.navBar.list[this.navBar.active].submenu || []
-    }
+    slideMenus() {
+      return this.navBar.list[this.navBar.active].submenu || [];
+    },
   },
   methods: {
-    handleSelect(key, keyPath) {
+    // 获取面包屑导航
+    getRouterBran(){
+      let bran = this.$route.matched.filter(v=>v.name);
+      let arr = [];
+      bran.forEach((v) => {
+        if(v.name==='index'|| v.name==='layout'){
+          return
+        }
+        arr.push({
+          name: v.name,
+          path:v.path,
+          title:v.meta.title
+        })
+      });
+      if(arr.length>0){
+        arr.unshift({name:'index',path:'/index',title:'后台首页'})
+
+      }
+      this.bran = arr;
+      console.log(arr);
+    },
+
+
+    handleSelect(key) {
       this.navBar.active = key;
     },
-    slideSelect(key, keyPath){
+    slideSelect(key) {
       this.slideMenusActive = key;
-    }
+    },
   },
 };
 </script>
