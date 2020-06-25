@@ -38,17 +38,9 @@
             default-active="2"
             @select="slideSelect"
             >
-            <el-menu-item index="2">
-              <i class="el-icon-menu"></i>
-              <span slot="title">导航二</span>
-            </el-menu-item>
-            <el-menu-item index="3">
-              <i class="el-icon-document"></i>
-              <span slot="title">导航三</span>
-            </el-menu-item>
-            <el-menu-item index="4">
-              <i class="el-icon-setting"></i>
-              <span slot="title">导航四</span>
+            <el-menu-item :index="index | numToString" v-for="(item,index) in slideMenus" :key="index">
+              <i :class="item.icon"></i>
+              <span slot="title">{{item.name}}</span>
             </el-menu-item>
           </el-menu>
         </el-aside>
@@ -70,10 +62,21 @@ export default {
   data() {
     return {
       navBar:{
-        acive:'0',
+        active:'0',
         list:[
           {
-            name: '首页'
+            name: '首页',
+            subActive:'0',
+            submenu:[
+              {
+                icon:'el-icon-s-home',
+                name:'后台首页'
+              },
+               {
+                icon:'el-icon-s-claim',
+                name:'商品列表'
+              }
+            ]
           },
            {
             name: '商品'
@@ -91,12 +94,26 @@ export default {
       }
     };
   },
+  computed:{
+    slideMenusActive:{
+      get(){
+        return this.navBar.list[this.navBar.active].subActive || '0';
+      },
+      set(val){
+        this.navBar.list[this.navBar.active].subActive = val;
+        console.log(val);
+      }
+    },
+    slideMenus(){
+      return this.navBar.list[this.navBar.active].submenu || []
+    }
+  },
   methods: {
     handleSelect(key, keyPath) {
-      console.log(key, keyPath);
+      this.navBar.active = key;
     },
     slideSelect(key, keyPath){
-      console.log(key, keyPath);
+      this.slideMenusActive = key;
     }
   },
 };
