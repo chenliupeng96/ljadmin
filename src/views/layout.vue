@@ -10,18 +10,14 @@
         <!-- logo -->
         <a class="h5 text-light mb-0 mr-auto">LJ-ADMIN</a>
         <el-menu
-          :default-active="navBarIndex"
+          :default-active="navBar.active"
           mode="horizontal"
           @select="handleSelect"
           background-color="#545c64"
           text-color="#fff"
           active-text-color="#ffd04b"
         >
-          <el-menu-item index="1">首页</el-menu-item>
-          <el-menu-item index="2">商品</el-menu-item>
-          <el-menu-item index="3">订单</el-menu-item>
-          <el-menu-item index="4">会员</el-menu-item>
-          <el-menu-item index="5">设置</el-menu-item>
+          <el-menu-item :index="index|numToString" v-for="(item, index) in navBar.list" :key="index">{{item.name}}</el-menu-item>
           <el-submenu index="100">
             <template slot="title">
               <el-avatar
@@ -68,10 +64,31 @@
 </template>
 
 <script>
+import common from '@/common/mixins/common.js';
 export default {
+  mixins:[common],
   data() {
     return {
-      navBarIndex: "1",
+      navBar:{
+        acive:'0',
+        list:[
+          {
+            name: '首页'
+          },
+           {
+            name: '商品'
+          },
+           {
+            name: '订单'
+          },
+           {
+            name: '会员'
+          },
+          {
+            name: '设置'
+          }
+        ]
+      }
     };
   },
   methods: {
