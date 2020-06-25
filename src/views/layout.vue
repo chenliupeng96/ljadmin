@@ -42,7 +42,11 @@
       <el-container style="height:100%;">
         <!-- 侧边布局开始 -->
         <el-aside width="200px">
-          <el-menu default-active="2" @select="slideSelect" style="height:100%;">
+          <el-menu
+            :default-active="navBar.active"
+            @select="slideSelect"
+            style="height:100%;"
+          >
             <el-menu-item
               :index="index | numToString"
               v-for="(item, index) in slideMenus"
@@ -57,25 +61,28 @@
         <!-- 主布局 -->
         <el-main>
           <!-- 面包屑导航开始 -->
-          <div class="border-bottom mb-3" style="padding:20px;margin:-20px;" v-if="bran.length>0">
+          <div
+            class="border-bottom mb-3"
+            style="padding:20px;margin:-20px;"
+            v-if="bran.length > 0"
+          >
             <el-breadcrumb separator-class="el-icon-arrow-right">
-            <el-breadcrumb-item 
-            v-for="(item,index) in bran"
-            :key="index"
-            :to="{ path: item.path }">{{item.title}}</el-breadcrumb-item>
-          </el-breadcrumb>
+              <el-breadcrumb-item
+                v-for="(item, index) in bran"
+                :key="index"
+                :to="{ path: item.path }"
+                >{{ item.title }}</el-breadcrumb-item
+              >
+            </el-breadcrumb>
           </div>
           <!-- 面包屑导航结束 -->
           <!-- 主内容开始 -->
-           <!-- 主内容开始 -->
+          <!-- 主内容开始 -->
           <router-view></router-view>
         </el-main>
-         <!-- 主布局结束 -->
-         
+        <!-- 主布局结束 -->
       </el-container>
     </el-container>
-
-    
   </div>
 </template>
 
@@ -86,24 +93,27 @@ export default {
   data() {
     return {
       navBar: [],
-      bran:[]
+      bran: [],
     };
   },
   created() {
     this.navBar = this.$conf.navBar;
+    console.log(this.bran);
     this.getRouterBran();
-
     // 初始化选中菜单
     this.__initNavBar();
   },
-  watch:{
-    '$route'() {
-    localStorage.setItem('navActive',JSON.stringify({
-      top:this.navBar.active,
-      left:this.slideMenusActive
-    }))
+  watch: {
+    $route() {
+      localStorage.setItem(
+        "navActive",
+        JSON.stringify({
+          top: this.navBar.active,
+          left: this.slideMenusActive,
+        })
+      );
       this.getRouterBran();
-    }
+    },
   },
   computed: {
     slideMenusActive: {
@@ -120,55 +130,51 @@ export default {
   },
   methods: {
     // 初始化选中
-    __initNavBar(){
-      let ls = localStorage.getItem('navActive')
-      if(ls){
-        ls = JSON.parse(ls)
+    __initNavBar() {
+      let ls = localStorage.getItem("navActive");
+      if (ls) {
+        ls = JSON.parse(ls);
         this.navBar.active = ls.top;
         this.slideMenusActive = ls.left;
       }
     },
     // 获取面包屑导航
-    getRouterBran(){
-      let bran = this.$route.matched.filter(v=>v.name);
+    getRouterBran() {
+      let bran = this.$route.matched.filter((v) => v.name);
       let arr = [];
       bran.forEach((v) => {
-        if(v.name==='index'|| v.name==='layout'){
-          return
+        if (v.name === "index" || v.name === "layout") {
+          return;
         }
         arr.push({
           name: v.name,
-          path:v.path,
-          title:v.meta.title
-        })
+          path: v.path,
+          title: v.meta.title,
+        });
       });
-      if(arr.length>0){
-        arr.unshift({name:'index',path:'/index',title:'后台首页'})
-
+      if (arr.length > 0) {
+        arr.unshift({ name: "index", path: "/index", title: "后台首页" });
       }
       this.bran = arr;
-      console.log(arr);
     },
-
 
     handleSelect(key) {
       this.navBar.active = key;
       // 默认跳转第一个
-      this.slideMenusActive = '0'
-      if(this.slideMenus.length>0){
-         this.$router.push({
-        name:this.slideMenus[this.slideMenusActive].pathname
-      })
+      this.slideMenusActive = "0";
+      if (this.slideMenus.length > 0) {
+        this.$router.push({
+          name: this.slideMenus[this.slideMenusActive].pathname,
+        });
       }
-      
     },
     slideSelect(key) {
       this.slideMenusActive = key;
       // 跳转指定页面
       console.log(this.slideMenus[key].pathname);
       this.$router.push({
-        name:this.slideMenus[key].pathname
-      })
+        name: this.slideMenus[key].pathname,
+      });
     },
   },
 };
