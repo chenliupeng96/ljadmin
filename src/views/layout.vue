@@ -43,7 +43,7 @@
         <!-- 侧边布局开始 -->
         <el-aside width="200px">
           <el-menu
-            :default-active="navBar.active"
+            :default-active="slideMenusActive"
             @select="slideSelect"
             style="height:100%;"
           >
