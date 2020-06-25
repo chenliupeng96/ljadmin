@@ -59,10 +59,10 @@
         </el-aside>
         <!-- 侧边布局结束 -->
         <!-- 主布局 -->
-        <el-main>
+        <el-main class="bg-light">
           <!-- 面包屑导航开始 -->
           <div
-            class="border-bottom mb-3"
+            class="border-bottom mb-3 bg-white"
             style="padding:20px;margin:-20px;"
             v-if="bran.length > 0"
           >
@@ -79,6 +79,18 @@
           <!-- 主内容开始 -->
           <!-- 主内容开始 -->
           <router-view></router-view>
+          <div style="height:1000px;"></div>
+          <el-backtop
+            target=".el-main"
+            :bottom="100"
+          >
+            <div
+              style="{height: 100%;width: 100%;background-color: #f2f5f6;
+        box-shadow: 0 0 6px rgba(0,0,0, .12);text-align: center;line-height: 40px; color: #1989fa;}"
+            >
+              UP
+            </div>
+          </el-backtop>
         </el-main>
         <!-- 主布局结束 -->
       </el-container>
