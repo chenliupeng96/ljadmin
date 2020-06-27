@@ -59,7 +59,7 @@
         </el-aside>
         <!-- 侧边布局结束 -->
         <!-- 主布局 -->
-        <el-main class="bg-light" style="padding-bottom:70px;">
+        <el-main class="bg-light" style="padding-bottom:70px;position:relative;">
           <!-- 面包屑导航开始 -->
           <div
             class="border-bottom mb-3 bg-white"
