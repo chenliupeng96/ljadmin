@@ -59,7 +59,7 @@
         </el-aside>
         <!-- 侧边布局结束 -->
         <!-- 主布局 -->
-        <el-main class="bg-light">
+        <el-main class="bg-light" style="padding-bottom:70px;">
           <!-- 面包屑导航开始 -->
           <div
             class="border-bottom mb-3 bg-white"
@@ -79,7 +79,6 @@
           <!-- 主内容开始 -->
           <!-- 主内容开始 -->
           <router-view></router-view>
-          <div style="height:1000px;"></div>
           <el-backtop
             target=".el-main"
             :bottom="100"

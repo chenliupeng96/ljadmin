@@ -21,14 +21,19 @@
     <!-- ----------------数据统计结束---------------- -->
 
     <!-- --------------------------------店铺、订单提示 | 统计图  开始-------------------------------- -->
-    <el-row :gutter="20" class="mt-3">
+    <el-row :gutter="20" class="my-3">
       <!-- ----------------店铺、订单提示 开始---------------- -->
       <el-col
         :span="12"
         class="d-flex flex-column"
         style="height:370px;justify-content:space-between;"
       >
-        <el-card class="box-card" v-for="(tip, ti) in tips" :key="ti">
+        <el-card
+          class="box-card"
+          v-for="(tip, ti) in tips"
+          :key="ti"
+          shadow="never"
+        >
           <div slot="header" class="clearfix">
             <span>{{ tip.title }}</span>
             <el-button style="float:right;padding:3px 0;" type="text">{{
@@ -53,22 +58,98 @@
 
       <!-- ---------------统计图 开始---------------------- -->
       <el-col :span="12">
-        <el-card class="box-card" style="height:370px;">
-          <div slot="header" class="clearfix">
-            <span>卡片名称</span>
-            <el-button
-              style="float:right;padding:3px 0;"
-              type="text"
-            ></el-button>
-          </div>
-          
+        <el-card class="box-card" style="height:370px;" shadow="never">
+          <!-- 统计图容器 开始 -->
           <div ref="myChart" style="width: 600px;height:400px;"></div>
-
+          <!-- 统计图容器 结束 -->
         </el-card>
       </el-col>
       <!-- ----------------统计图 结束---------------------- -->
     </el-row>
     <!-- --------------------------------店铺、订单提示 | 统计图  结束-------------------------------- -->
+
+    <!-- --------------------------------销售情况统计 | 单品销售排名  开始-------------------------------- -->
+    <el-row :gutter="20" class="mt-3">
+      <!-- 销售情况统计 开始 -->
+      <el-col :span="12">
+        <el-card class="box-card" shadow="never">
+          <div slot="header" class="clearfix">
+            <span>销售情况统计</span>
+            <el-button style="float:right;padding:3px 0;" type="text"
+              >按周期统计商家店铺的订单量和订单金额</el-button
+            >
+          </div>
+          <div ref="body">
+            <div class="media align-items-center border">
+              <span class="py-4 px-3 bg-light border-right" ref="zrxs"
+                >昨日销量</span
+              >
+              <div class="media-body" :style="`height:${zrxsHeight}px;`">
+                <div class="border-bottom pl-3" style="height: 50%;">
+                  <span style="height: 100%;display: flex;align-items: center;"
+                    >订单量(件)<span>12</span></span
+                  >
+                </div>
+                <div class="pl-3" style="height: 50%;">
+                  <span style="height: 100%;display: flex;align-items: center;"
+                    >订单量(件)<span>12</span></span
+                  >
+                </div>
+              </div>
+            </div>
+
+            <div class="media align-items-center border mt-2">
+              <span class="py-4 px-3 bg-light border-right" ref="zrxs"
+                >昨日销量</span
+              >
+              <div class="media-body" :style="`height:${zrxsHeight}px;`">
+                <div class="border-bottom pl-3" style="height: 50%;">
+                  <span style="height: 100%;display: flex;align-items: center;"
+                    >订单量(件)<span>12</span></span
+                  >
+                </div>
+                <div class="pl-3" style="height: 50%;">
+                  <span style="height: 100%;display: flex;align-items: center;"
+                    >订单量(件)<span>12</span></span
+                  >
+                </div>
+              </div>
+            </div>
+          </div>
+        </el-card>
+      </el-col>
+      <!-- 销售情况统计 结束 -->
+
+
+      <!-- 单品销售排名 开始 -->
+      <el-col :span="12">
+        <el-card class="box-card" shadow="never">
+          <div slot="header" class="clearfix">
+            <span>单品销售排名</span>
+            <el-button style="float:right;padding:3px 0;" type="text"
+              >按周期统计商家店铺的订单量和订单金额</el-button
+            >
+          </div>
+
+          <el-table
+            :data="tableData"
+            :height="bodyHeight"
+            border
+            style="width: 100%;"
+          >
+            <el-table-column type="index" label="#" width="50">
+            </el-table-column>
+
+            <el-table-column prop="name" label="商品信息"> </el-table-column>
+
+            <el-table-column prop="num" label="商品销量"> </el-table-column>
+          </el-table>
+        </el-card>
+      </el-col>
+      <!-- 单品销售排名 结束 -->
+    </el-row>
+
+    <!-- --------------------------------销售情况统计 | 单品销售排名  结束-------------------------------- -->
   </div>
 </template>
 
@@ -78,6 +159,28 @@ import echarts from "echarts";
 export default {
   data() {
     return {
+      // 销售情况统计 高度
+      bodyHeight: 0,
+      // 昨日销量  高度
+      zrxsHeight: 0,
+      tableData: [
+        {
+          name: "xxxxxx",
+          num: "9",
+        },
+        {
+          name: "xxxxxx",
+          num: "9",
+        },
+        {
+          name: "xxxxxx",
+          num: "9",
+        },
+        {
+          name: "xxxxxx",
+          num: "9",
+        },
+      ],
       counts: [
         {
           icon: "el-icon-user-solid",
@@ -114,46 +217,46 @@ export default {
               value: "64",
             },
             {
-              name: "出售中",
-              value: "64",
+              name: "待回复",
+              value: "10",
             },
             {
-              name: "出售中",
-              value: "64",
+              name: "库存预警",
+              value: "0",
             },
             {
-              name: "出售中",
-              value: "64",
+              name: "仓库",
+              value: "3",
             },
           ],
         },
         {
-          title: "店铺及商品提示",
-          desc: "需要关注的店铺信息及待处理事项",
+          title: "交易提示",
+          desc: "需要立即处理的交易订单",
           list: [
             {
-              name: "出售中",
-              value: "64",
+              name: "代付款",
+              value: "0",
             },
             {
-              name: "出售中",
-              value: "64",
+              name: "待发货",
+              value: "10",
             },
             {
-              name: "出售中",
-              value: "64",
+              name: "已发货",
+              value: "0",
             },
             {
-              name: "出售中",
-              value: "64",
+              name: "已收货",
+              value: "3",
             },
             {
-              name: "出售中",
-              value: "64",
+              name: "退款中",
+              value: "3",
             },
             {
-              name: "出售中",
-              value: "64",
+              name: "待售后",
+              value: "3",
             },
           ],
         },
@@ -167,7 +270,14 @@ export default {
   },
   mounted() {
     this.drawLine();
+
+    this.$nextTick(() => {
+      this.zrxsHeight = this.$refs["zrxs"].clientHeight;
+      // 销售情况统计 高度
+      this.bodyHeight = this.$refs["body"].clientHeight;
+    });
   },
+
   methods: {
     drawLine() {
       //  初始化echarts实例
