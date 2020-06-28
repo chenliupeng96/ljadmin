@@ -44,7 +44,7 @@
               :index="index"
               :active="albumsIndex === index"
               @change="albumsChange(index)"
-              @edit="openAlbumModel({item,index})"
+              @edit="openAlbumModel({ item, index })"
               @del="albumDel(index)"
             />
           </ul>
@@ -62,10 +62,10 @@
       <el-footer>Footer</el-footer>
     </el-container>
 
-    <!-- ------------- 修改 | 创建相册 开始-------------- -->
-    <el-dialog title="修改相册" :visible.sync="albumModel">
-      <el-form :model="albumForm" ref="form" label-width="80px">
-        <el-form-item label="相册名称">
+    <!-- ------------- 修改 | 创建相册 模态框 开始-------------- -->
+    <el-dialog :title="albumModelTitle" :visible.sync="albumModel">
+      <el-form :model="albumForm" ref="form" label-width="80px" :rules="rules">
+        <el-form-item label="相册名称" prop="name">
           <el-input
             v-model="albumForm.name"
             size="medium"
@@ -87,7 +87,7 @@
       </div>
     </el-dialog>
 
-    <!-- ------------- 修改 | 创建相册 结束-------------- -->
+    <!-- ------------- 修改 | 创建相册 模态框 结束-------------- -->
   </div>
 </template>
 
@@ -107,13 +107,27 @@ export default {
         name: "",
         order: 0,
       },
-      //
+      // ------------ 判断是否为创建相册 | 修改相册 开始 ------------
       albumEditIndex: -1,
+      // ------------ 判断是否为创建相册 | 修改相册 结束 ------------
       albums: [],
+      rules: {
+        name: [
+          { required: true, message: "不能相册名称为空", trigger: "blur" },
+          { min: 3, max: 5, message: "长度在 3 到 5 个字符", trigger: "blur" },
+        ],
+      },
     };
   },
   created() {
     this.__init();
+  },
+  computed: {
+    // -------------- 判断模态框标题 开始 --------------
+    albumModelTitle() {
+      return this.albumEditIndex > -1 ? "修改相册" : "创建相册";
+    },
+    // -------------- 判断模态框标题 结束 --------------
   },
   components: {
     albumItem,
@@ -154,7 +168,7 @@ export default {
 
     // -------------- 打开修改相册框 开始 --------------
     openAlbumModel(obj) {
-      // 修改
+      // 判断为修改相册
       if (obj) {
         let { item, index } = obj;
         // 初始化表单
@@ -164,7 +178,7 @@ export default {
         // 打开模态框
         return (this.albumModel = true);
       }
-      // 创建
+      // 判断为创建相册
       this.albumForm = {
         name: "",
         order: 0,
@@ -175,19 +189,26 @@ export default {
     // -------------- 打开修改相册框 结束 --------------
     // --------------点击确定修改/创建相册 开始 --------------
     comfirmAlbumModel() {
-      // 判断修改或者创建
-      if (this.albumEditIndex > -1) {
-        // 修改
-        this.albumEdit();
-        return (this.albumModel = false);
-      }
-      // 追加albums
-      this.albums.unshift({
-        name: this.albumForm.name,
-        order: this.albumForm.order,
-        num: 0,
+      // 判断相册名称是否为空
+      this.$refs["form"].validate((valid) => {
+        if (!valid) {
+          return false;
+        } else {
+          // 判断修改或者创建
+          if (this.albumEditIndex > -1) {
+            // 修改
+            this.albumEdit();
+            return (this.albumModel = false);
+          }
+          // 追加albums
+          this.albums.unshift({
+            name: this.albumForm.name,
+            order: this.albumForm.order,
+            num: 0,
+          });
+          this.albumModel = false;
+        }
       });
-      this.albumModel = false;
     },
     // -------------- 点击确定修改/创建相册 结束 --------------
     // -------------- 修改相册 开始 --------------
