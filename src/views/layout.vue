@@ -170,6 +170,12 @@ export default {
     },
 
     handleSelect(key) {
+      if(key === '100-1'){
+        return console.log('修改')
+      }
+      if(key === '100-2'){
+        return console.log('退出')
+      }
       this.navBar.active = key;
       // 默认跳转第一个
       this.slideMenusActive = "0";
