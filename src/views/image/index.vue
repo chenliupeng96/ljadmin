@@ -1,67 +1,209 @@
 <template>
   <div>
     <el-container style="position:absolute;left:0;top:55px;bottom:0;right:0;">
+      <!-- ------------- 头部 开始 ------------- -->
       <el-header class="d-flex align-items-center">
-        <!-- 头部 开始 -->
         <div class="d-flex mr-auto">
           <el-select
             class="mr-2"
-            placeholder="请选择活动区域"
-            size="medium"
+            placeholder="请选择图片排序方式"
+            size="mini"
             style="width:150px;"
+            v-model="searchForm.order"
           >
             <el-option label="区域一" value="shanghai"></el-option>
             <el-option label="区域二" value="beijing"></el-option>
           </el-select>
-          <el-input class="mr-2" size="medium" style="width:150px;"></el-input>
-          <el-button type="success" size="medium">搜索</el-button>
+          <el-input
+            class="mr-2"
+            size="mini"
+            style="width:150px;"
+            placeholder="输入相册名称"
+            v-model="searchForm.keyword"
+          ></el-input>
+          <el-button type="success" size="mini">搜索</el-button>
         </div>
-        <el-button type="success">创建相册</el-button>
-        <el-button type="warning">上传图片</el-button>
-        <!-- 头部 结束 -->
+        <el-button type="success" size="mini" @click="openAlbumModel(false)"
+          >创建相册</el-button
+        >
+        <el-button type="warning" size="mini">上传图片</el-button>
       </el-header>
+      <!-- ------------- 头部 结束 ------------- -->
       <el-container>
+        <!-- -- ------------- 侧边 | 相册列表 开始 -- ------------- -->
         <el-aside
           width="200px"
           style="position:absolute;top:60px;left:0;bottom:60px;"
+          class="bg-white"
         >
-          <!-- 侧边 开始 -->
-
-          <!-- 侧边 结束 -->
+          <ul class="list-group list-group-flush">
+            <albumItem
+              v-for="(item, index) in albums"
+              :key="index"
+              :item="item"
+              :index="index"
+              :active="albumsIndex === index"
+              @change="albumsChange(index)"
+              @edit="openAlbumModel({item,index})"
+              @del="albumDel(index)"
+            />
+          </ul>
         </el-aside>
+        <!-- -- ------------- 侧边 | 相册列表 结束 -- ------------- -->
         <el-container>
+          <!-- ------------- 主内容 开始 ------------- -->
           <el-main
             style="position:absolute;top:60px;left:200px;bottom:60px;right:0;"
           >
-            <!-- 主内容 开始 -->
-
-            <!-- 主内容 结束 -->
           </el-main>
+          <!--  ------------- 主内容 结束 ------------- -->
         </el-container>
       </el-container>
       <el-footer>Footer</el-footer>
     </el-container>
+
+    <!-- ------------- 修改 | 创建相册 开始-------------- -->
+    <el-dialog title="修改相册" :visible.sync="albumModel">
+      <el-form :model="albumForm" ref="form" label-width="80px">
+        <el-form-item label="相册名称">
+          <el-input
+            v-model="albumForm.name"
+            size="medium"
+            placeholder="请输入相册名称"
+          ></el-input>
+        </el-form-item>
+        <el-form-item label="相册排序">
+          <el-input-number
+            v-model="albumForm.order"
+            :min="0"
+            size="medium"
+          ></el-input-number>
+        </el-form-item>
+      </el-form>
+
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="albumModel = false">取 消</el-button>
+        <el-button type="primary" @click="comfirmAlbumModel">确 定</el-button>
+      </div>
+    </el-dialog>
+
+    <!-- ------------- 修改 | 创建相册 结束-------------- -->
   </div>
 </template>
 
 <script>
-export default {};
+// 引入相册列表
+import albumItem from "./../../components/image/album-item";
+export default {
+  data() {
+    return {
+      searchForm: {
+        order: "",
+        keyword: "",
+      },
+      albumsIndex: 0,
+      albumModel: false,
+      albumForm: {
+        name: "",
+        order: 0,
+      },
+      //
+      albumEditIndex: -1,
+      albums: [],
+    };
+  },
+  created() {
+    this.__init();
+  },
+  components: {
+    albumItem,
+  },
+  methods: {
+    __init() {
+      for (let i = 0; i < 20; i++) {
+        this.albums.push({
+          name: "相册" + i,
+          num: Math.floor(Math.random() * 100),
+          order: 0,
+        });
+      }
+    },
+    // -------------- 切换相册 开始--------------
+    albumsChange(index) {
+      this.albumsIndex = index;
+    },
+    // -------------- 切换相册 结束--------------
+
+    // --------------  删除相册 开始 ---------------
+    albumDel(index) {
+      this.$confirm("是否删除该相册", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning",
+      })
+        .then(() => {
+          this.albums.splice(index, 1);
+          this.$message({
+            message: "删除成功!",
+            type: "success",
+          });
+        })
+        .catch((e) => e);
+    },
+    // --------------  删除相册 结束 ---------------
+
+    // -------------- 打开修改相册框 开始 --------------
+    openAlbumModel(obj) {
+      // 修改
+      if (obj) {
+        let { item, index } = obj;
+        // 初始化表单
+        this.albumForm.name = item.name;
+        this.albumForm.order = item.order;
+        this.albumEditIndex = index;
+        // 打开模态框
+        return (this.albumModel = true);
+      }
+      // 创建
+      this.albumForm = {
+        name: "",
+        order: 0,
+      };
+      this.albumEditIndex = -1;
+      this.albumModel = true;
+    },
+    // -------------- 打开修改相册框 结束 --------------
+    // --------------点击确定修改/创建相册 开始 --------------
+    comfirmAlbumModel() {
+      // 判断修改或者创建
+      if (this.albumEditIndex > -1) {
+        // 修改
+        this.albumEdit();
+        return (this.albumModel = false);
+      }
+      // 追加albums
+      this.albums.unshift({
+        name: this.albumForm.name,
+        order: this.albumForm.order,
+        num: 0,
+      });
+      this.albumModel = false;
+    },
+    // -------------- 点击确定修改/创建相册 结束 --------------
+    // -------------- 修改相册 开始 --------------
+    albumEdit() {
+      this.albums[this.albumEditIndex].name = this.albumForm.name;
+      this.albums[this.albumEditIndex].order = this.albumForm.order;
+    },
+    // -------------- 修改相册 结束 --------------
+  },
+};
 </script>
 
 <style lang="scss" scoped>
-.el-header,
-.el-footer {
-  background-color: #b3c0d1;
-  color: #333;
-}
-
-.el-aside {
-  background-color: #d3dce6;
-  color: #333;
-}
-
-.el-main {
-  background-color: #e9eef3;
-  color: #333;
+.sum-active {
+  color: #67c23a !important;
+  background-color: #f0f9eb !important;
+  border-color: #c2e7b0 !important;
 }
 </style>
