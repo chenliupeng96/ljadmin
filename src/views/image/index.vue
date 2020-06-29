@@ -23,6 +23,20 @@
           ></el-input>
           <el-button type="success" size="mini">搜索</el-button>
         </div>
+        <el-button
+          type="warning"
+          size="mini"
+          @click="unChoose"
+          v-if="chooseList.length > 0"
+          >取消选中</el-button
+        >
+        <el-button
+          type="danger"
+          size="mini"
+          @click="imageDel({ all: true })"
+          v-if="chooseList.length > 0"
+          >批量删除</el-button
+        >
         <el-button type="success" size="mini" @click="openAlbumModel(false)"
           >创建相册</el-button
         >
@@ -57,11 +71,100 @@
           <el-main
             style="position:absolute;top:60px;left:200px;bottom:60px;right:0;"
           >
+            <el-row :gutter="20">
+              <el-col
+                :span="24"
+                :lg="4"
+                :md="6"
+                :sm="8"
+                v-for="(item, index) in imageList"
+                :key="index"
+              >
+                <el-card
+                  class="box-card mb-3 position-relative"
+                  :body-style="{ padding: '0' }"
+                  shadow="hover"
+                  style="cursor:pointer;"
+                >
+                  <div
+                    class="border"
+                    :class="{ 'border-danger': item.ischeck }"
+                  >
+                    <span
+                      class="badge badge-danger"
+                      style="position:absolute;right:0;top:0;"
+                      v-if="item.ischeck"
+                      >{{ item.checkOrder }}</span
+                    >
+
+                    <img
+                      :src="item.url"
+                      class="w-100"
+                      style="height:100px;"
+                      @click="choose(item)"
+                    />
+
+                    <div
+                      class="w-100 text-white px-1"
+                      style="background:rgba(0,0,0,.5);margin-top:-25px; position:absolute;"
+                    >
+                      <span class="small">{{ item.name }}</span>
+                    </div>
+
+                    <div class="p-2 text-center">
+                      <el-button-group>
+                        <el-button
+                          icon="el-icon-view"
+                          size="mini"
+                          class="p-2"
+                          @click="previewImage(item)"
+                        ></el-button>
+                        <el-button
+                          icon="el-icon-edit"
+                          size="mini"
+                          class="p-2"
+                          @click="imageEdit(item, index)"
+                        ></el-button>
+                        <el-button
+                          icon="el-icon-delete"
+                          size="mini"
+                          class="p-2"
+                          @click="imageDel({ index })"
+                        ></el-button>
+                      </el-button-group>
+                    </div>
+                  </div>
+                </el-card>
+              </el-col>
+            </el-row>
           </el-main>
           <!--  ------------- 主内容 结束 ------------- -->
         </el-container>
       </el-container>
-      <el-footer>Footer</el-footer>
+      <el-footer class="border-top d-flex align-items-center px-0">
+        <div
+          style="width:200px; flex-s"
+          class="h-100 d-flex align-items-center justify-content-center border-right"
+        >
+          <el-button-group>
+            <el-button type="primary" size="mini">上一页</el-button>
+            <el-button type="primary" size="mini">下一页</el-button>
+          </el-button-group>
+        </div>
+        <div style="flex:1;" class="px-2">
+          <el-pagination
+            @size-change="sizeChange"
+            @current-change="currentChange"
+            :current-page="currentPage"
+            :page-sizes="[20, 40, 80, 100]"
+            :page-size="100"
+            layout="total, sizes, prev, pager, next, jumper"
+            :total="400"
+            background
+          >
+          </el-pagination>
+        </div>
+      </el-footer>
     </el-container>
 
     <!-- ------------- 修改 | 创建相册 模态框 开始-------------- -->
@@ -116,6 +219,13 @@
     </el-dialog>
 
     <!-- ------------- 上传图片 模态框 结束 ------------- -->
+    <el-dialog :visible.sync="previewModel" width="60vw" top="5vh">
+      <div style="margin:-60px -20px -30px -20px;">
+        <img :src="previewUrl" class="w-100" />
+      </div>
+    </el-dialog>
+
+    <!-- ------------- 预览图片 模态框 开始 ------------- -->
   </div>
 </template>
 
@@ -130,8 +240,9 @@ export default {
         keyword: "",
       },
       uploadModel: false,
-      albumsIndex: 0,
+      previewModel: false,
       albumModel: false,
+      albumsIndex: 0,
       albumForm: {
         name: "",
         order: 0,
@@ -146,6 +257,10 @@ export default {
           { min: 3, max: 5, message: "长度在 3 到 5 个字符", trigger: "blur" },
         ],
       },
+      imageList: [],
+      chooseList: [],
+      previewUrl: "",
+      currentPage: 1,
     };
   },
   created() {
@@ -170,6 +285,65 @@ export default {
           order: 0,
         });
       }
+      for (let i = 0; i < 30; i++) {
+        this.imageList.push({
+          id: i,
+          url:
+            "https://dss2.bdstatic.com/8_V1bjqh_Q23odCf/pacific/1956029413.jpg",
+          name: "图片" + i,
+          ischeck: false,
+          checkOrder: 0,
+        });
+      }
+    },
+    // 取消选中
+    unChoose(){
+      this.imageList.forEach(img=>{
+        let i = this.chooseList.findIndex(item=>{
+          return item.id === img.id;
+        })
+        if(i>-1){
+          img.ischeck = false;
+          img.checkOrder = 0;
+          this.chooseList.splice(i,1);
+        }
+      })
+      
+    },
+    // 选中图片
+    choose(item) {
+      // 选中
+      if (!item.ischeck) {
+        this.chooseList.push({
+          id: item.id,
+          url: item.url,
+        });
+        // 计算序号
+        item.checkOrder = this.chooseList.length;
+        // 修改状态
+        item.ischeck = true;
+        return;
+      }
+      // 取消选中
+      let i = this.chooseList.findIndex((v) => v.id === item.id);
+      if (i === -1) return;
+      // 重新计算序号
+      let length = this.chooseList.length;
+      // 取消选中中间部分
+      if (i + 1 < length) {
+        for (let j = i; j < length; j++) {
+          let no = this.imageList.findIndex(
+            (v) => v.id === this.chooseList[j].id
+          );
+          if (no > -1) {
+            this.imageList[no].checkOrder--;
+          }
+        }
+      }
+      // 删除
+      this.chooseList.splice(i, 1);
+      item.ischeck = false;
+      item.checkOrder = 0;
     },
     // -------------- 切换相册 开始--------------
     albumsChange(index) {
@@ -246,6 +420,67 @@ export default {
       this.albums[this.albumEditIndex].order = this.albumForm.order;
     },
     // -------------- 修改相册 结束 --------------
+
+    // -------------- 预览图片 开始 --------------
+    previewImage(item) {
+      this.previewUrl = item.url;
+      this.previewModel = true;
+    },
+    // -------------- 预览图片 结束 --------------
+    // -------------- 修改图片名称 开始 --------------
+    imageEdit(item, index) {
+      this.$prompt("请输入新名称", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        inputValue: item.name,
+        inputValidator(val) {
+          if (val === "") {
+            return "图片名称不能为空";
+          }
+        },
+      }).then(({ value }) => {
+        item.name = value;
+        this.$message({
+          message: "修改成功!",
+          type: "success",
+        });
+      });
+    },
+    // -------------- 修改图片名称 结束 --------------
+    // -------------- 删除当前图片与批量删除 开始 --------------
+    imageDel(obj) {
+      this.$confirm(obj.all ? "是否删除选中图片?" : "是否删除该相册?", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning",
+      })
+        .then(() => {
+          if (obj.all) {
+            let list = this.imageList.filter(
+              (img) => !this.chooseList.some((c) => c.id === img.id)
+            );
+            this.imageList = list;
+            this.chooseList = [];
+          } else {
+            this.imageList.splice(obj.index, 1);
+          }
+
+          this.$message({
+            message: "删除成功!",
+            type: "success",
+          });
+        })
+        .catch((e) => e);
+    },
+    // -------------- 删除当前图片 结束 --------------
+
+    // 分页
+    handleSizeChange(val) {
+      console.log(`每页 ${val} 条`);
+    },
+    handleCurrentChange(val) {
+      console.log(`当前页: ${val}`);
+    },
   },
 };
 </script>
