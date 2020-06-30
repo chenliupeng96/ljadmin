@@ -13,7 +13,7 @@ export default {
             pathname:'index'
           },
           {
-            icon: "el-icon-s-home",
+            icon: "el-icon-picture",
             name: "相册管理",
             pathname:'image'
           },

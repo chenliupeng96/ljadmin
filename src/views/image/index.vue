@@ -310,26 +310,26 @@ export default {
       })
       
     },
-    // 选中图片
+    // -------------- 选中图片 开始--------------
     choose(item) {
-      // 选中
+      // -------------- 选中 --------------
       if (!item.ischeck) {
         this.chooseList.push({
           id: item.id,
           url: item.url,
         });
-        // 计算序号
+        // -------------- 计算序号 --------------
         item.checkOrder = this.chooseList.length;
-        // 修改状态
+        // -------------- 修改状态 --------------
         item.ischeck = true;
         return;
       }
-      // 取消选中
+      // -------------- 取消选中 --------------
       let i = this.chooseList.findIndex((v) => v.id === item.id);
       if (i === -1) return;
-      // 重新计算序号
+      // -------------- 重新计算序号 --------------
       let length = this.chooseList.length;
-      // 取消选中中间部分
+      // -------------- 取消选中中间部分 --------------
       if (i + 1 < length) {
         for (let j = i; j < length; j++) {
           let no = this.imageList.findIndex(
@@ -340,11 +340,12 @@ export default {
           }
         }
       }
-      // 删除
+      // -------------- 删除 --------------
       this.chooseList.splice(i, 1);
       item.ischeck = false;
       item.checkOrder = 0;
     },
+    // -------------- 选中图片 结束--------------
     // -------------- 切换相册 开始--------------
     albumsChange(index) {
       this.albumsIndex = index;
@@ -428,7 +429,7 @@ export default {
     },
     // -------------- 预览图片 结束 --------------
     // -------------- 修改图片名称 开始 --------------
-    imageEdit(item, index) {
+    imageEdit(item) {
       this.$prompt("请输入新名称", "提示", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
@@ -472,7 +473,7 @@ export default {
         })
         .catch((e) => e);
     },
-    // -------------- 删除当前图片 结束 --------------
+    // -------------- 删除当前图片与批量删除 结束 --------------
 
     // 分页
     handleSizeChange(val) {
